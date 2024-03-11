@@ -1,0 +1,10 @@
+# Use dotnet restore on specific folder
+
+parameters:
+  - name: SolutionFolderPath
+    displayName: SLN folder path
+    type: string
+
+- script: dotnet restore 
+  displayName: Restore dependencies
+  workingDirectory: $(parameters['SolutionFolderPath'])

@@ -1,0 +1,39 @@
+# Template used to compile the pkg number version
+
+# Need Variables
+#    -  (number) PackageVersionMajor : Major version number
+#    -  (number) PackageVersionMinor : Minor version number
+#    -  (number) PackageVersionPatch : Patch version number
+
+# Option : 
+#    - (bool) TagAsPrerelease : If true add the suffix "-prerelease"
+#    - (bool) IncludeBuild : If true add the build number (id)
+
+variables:
+
+  - name: PkgVersionMajor
+    value: $(PackageVersionMajor)
+
+  - name: PkgVersionMinor
+    value: $(PackageVersionMinor)
+
+  - name: PkgVersionPatch
+    value: $(PackageVersionPatch)
+
+  - name: PkgVersionBuild
+    ${{ if variables['IncludeBuildNumber'] }}:
+      value: ""
+    ${{ else }}:
+      value: ".$(Build.BuildId)"
+
+  - name: PkgVersionPrerelease
+    ${{ if variables['TagAsPrerelease'] }}:
+      value: ""
+    ${{ else }}:
+      value: "-prerelease"
+
+  - name: FinalPkgVersionNumber
+    value: ${{ variables.PkgVersionMajor }}.${{ variables.PkgVersionMinor }}.${{ variables.PkgVersionPatch }}${{ variables.PkgVersionBuild }}
+
+  - name : FinalPkgVersion
+    value: ${{ variables.FinalPkgVersionNumber }}${{ variables.PkgVersionPrerelease }}
