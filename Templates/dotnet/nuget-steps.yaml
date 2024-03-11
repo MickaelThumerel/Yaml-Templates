@@ -1,0 +1,62 @@
+
+parameters:
+
+  - name: solution_folder
+    displayName: Define solution folder where to search the csproj to pack
+    type: string
+    default: ./
+
+  - name: solution_file_name
+    displayName: Relative to solution folder, the SLN file name
+    type: string
+
+  - name: package_version
+    displayName: Define version of the package to build and export
+    type: string
+
+  - name: build_package_folder
+    displayName: Define where nuger package will be stored after pack
+    type: string
+    default: ".publish/nuget"
+
+  - name: nuget_depo
+    displayName: Define the export target
+    type: string
+    default: https://api.nuget.org/v3/index.json
+
+  - name: nuget_package_filter
+    displayName: Define the filter to choose the package to export
+    type: string
+    default: "*.nupkg"
+
+  - name: build_configuration
+    displayName: Build configuration
+    type: string
+    default: "Release"
+
+  - name: secret_api_key
+    displayName: Secret API key that allow to publish
+    type: string
+
+  - name: include_symbols
+    displayName: Define if symbols dll must be exported
+
+steps:
+  - bash: echo '##vso[task.setvariable variable=pack_option_symbols]--include-symbols'
+    displayName: Set export symbols
+    condition: ${{ eq(parameters.include_symbols, true) }}
+
+  - bash: echo '##vso[task.setvariable variable=pack_option_symbols]'
+    displayName: Prevent export symbols
+    condition: ${{ eq(parameters.include_symbols, false) }}
+
+  - bash: echo '##vso[task.setvariable variable=nuget_package_filter]*.symbols.nupkg'
+    displayName: Set symbols filter
+    condition: ${{ eq(parameters.include_symbols, true) }}
+
+  - script: dotnet pack ${{ parameters.solution_folder }}${{ parameters.solution_file_name }} -o "${{ parameters.build_package_folder }}" -c ${{ parameters.build_configuration }} $(pack_option_symbols)  -p:PackageVersion=${{ parameters.package_version }}
+    displayName: dotnet pack
+
+  - script: dotnet nuget push -s "${{ parameters.nuget_depo }}" "${{ parameters.nuget_package_filter }}" --api-key ${{ parameters.secret_api_key }} --skip-duplicate
+    displayName: dotnet push
+    workingDirectory: ${{ parameters.build_package_folder }}
