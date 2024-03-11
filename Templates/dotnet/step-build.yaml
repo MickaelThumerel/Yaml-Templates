@@ -11,5 +11,5 @@ parameters:
     default: Release
 
 steps:
-- script: dotnet build "$parameters['SolutionFilePath']" -c $(buildConfiguration)
-  displayName: Build
+  - script: dotnet build "$parameters['SolutionFilePath']" -c $(buildConfiguration)
+    displayName: Build
