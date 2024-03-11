@@ -1,13 +1,18 @@
 
 parameters:
-  - name: SolutionFile
+  - name: solution-file-name
     displayName: Relative to solution folder, the SLN file name
     type: string
 
-  - name: SolutionFolderPath
+  - name: solution-folder-path
     displayName: SLN folder path
     type: string
     default: ./
+
+  - name: build-configuration
+    displayName: Build configuration
+    type: string
+    default: Release
 
 jobs:
   - job: Build
@@ -15,8 +20,9 @@ jobs:
     steps:
       - template: step-restore-dependencies.yaml
         parameters:
-          SolutionFolderPath : $parameters['SolutionFolderPath']
+          solution-folder-path : $parameters['solution-folder-path']
 
       - template: step-build.yaml
         parameters:
-          SolutionFolderPath : $parameters['SolutionFolderPath']/$parameters['SolutionFile']
+          solution-file-path : $parameters['solution-folder-path']/$parameters['solution-file-name']
+          build-configuration: $parameters['build-configuration']

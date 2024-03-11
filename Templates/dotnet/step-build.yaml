@@ -1,10 +1,15 @@
 # Use dotnet build using a specific solution file *.sln
 
 parameters:
-  - name: SolutionFilePath
+  - name: solution-file-path
     displayName: SLN file path
     type: string
-    
+
+  - name: build-configuration
+    displayName: Build configuration
+    type: string
+    default: Release
+
 steps:
 - script: dotnet build "$parameters['SolutionFilePath']" -c $(buildConfiguration)
   displayName: Build
