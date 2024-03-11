@@ -1,0 +1,52 @@
+# Run unit test & export code coverage
+
+parameters:
+  - name: debug_display
+    displayName: Define debug information are requested
+    type: boolean
+    default: false
+
+  - name: build_configuration
+    displayName: Build configuration
+    type: string
+    default: "Release"
+
+  - name: export_code_coverage
+    displayName: Define if the code coverage must be export
+    type: boolean
+    default: true
+
+  - name: exclude_from_coverage_regex
+    displayName: Define the the regex to used to identify the dll to exclude
+    type: string
+    default: ""
+
+  - name: need_build
+    displayName: Define if test execution need solution to be build
+    type: boolean
+    default: false
+
+steps:
+  - ${{ each parameter in parameters }}:
+    - script: echo "##[debug]Parameter ${{ parameter.Key }} = ${{ parameter.Value }}"
+      displayName: "-- Tests ${{ parameter.Key }} = ${{ parameter.Value }}"
+      condition: ${{ eq(parameters.debug_display, true) }}
+
+  - bash: echo "##vso[task.setvariable variable=build_option]--no-build"
+    displayName: Set no build option
+    condition: ${{ eq(parameters.need_build, false) }}
+
+  - bash: echo '##vso[task.setvariable variable=code_coverage_exclude_regex]DataCollectionRunSettings.DataCollectors.DataCollector.Configuration.CodeCoverage.ModulePaths.Exclude.ModulePath="${{ parameters.exclude_from_coverage_regex }}"'
+    displayName: Set export code coverage Exclusion
+    condition: ${{ and(eq(parameters.export_code_coverage, true), ne(parameters.exclude_from_coverage_regex, 'null'), ne(parameters.exclude_from_coverage_regex, '')) }}
+
+  - bash: echo '##vso[task.setvariable variable=code_coverage_option]/p:CollectCoverage=true --collect:"XPlat Code Coverage"  -- xunit.ParallelizeAssembly=true xunit.MaxParallelThreads=4'
+    displayName: Set export code coverage
+    condition: ${{ eq(parameters.export_code_coverage, true) }}
+
+  - task: DotNetCoreCLI@2
+    displayName: 'Run tests'
+    inputs:
+      command: 'test'    
+      arguments: '--settings .runsettings -c ${{ parameters.build_configuration }} $(build_option) -v=normal --blame-hang-timeout 240s $(code_coverage_option) $(code_coverage_exclude_regex)'
+      publishTestResults: true

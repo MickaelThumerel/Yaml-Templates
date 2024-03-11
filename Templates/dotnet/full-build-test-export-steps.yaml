@@ -1,0 +1,52 @@
+parameters:
+  - name: solution_file_name
+    displayName: Relative to solution folder, the SLN file name
+    type: string
+
+  - name: solution_folder_path
+    displayName: SLN folder path
+    type: string
+    default: ./
+
+  - name: build_configuration
+    displayName: Build configuration
+    type: string
+    default: Release
+
+  - name: export_code_coverage
+    displayName: Define if the code coverage must be export
+    type: boolean
+    default: true
+
+  - name: exclude_from_coverage_regex
+    displayName: Define the the regex to used to identify the dll to exclude
+    type: string
+    default: ""
+
+  - name: debug_display
+    displayName: Define debug information are requested
+    type: boolean
+    default: false
+
+steps:
+  - ${{ each parameter in parameters }}:
+    - script: echo "##[debug]Parameter ${{ parameter.Key }} = ${{ parameter.Value }}"
+      displayName: "-- Full ${{ parameter.Key }} = ${{ parameter.Value }}"
+      condition: ${{ eq(parameters.debug_display, true) }}
+
+  - template: build-steps.yaml
+    parameters:
+      solution_file_name: ${{ parameters.solution_file_name }}
+      solution_folder_path: ${{ parameters.solution_folder_path }}
+      build_configuration: ${{ parameters.build_configuration }}
+      debug_display: ${{ parameters.debug_display }}
+
+  - template: test-steps.yaml
+    parameters:
+      build_configuration: ${{ parameters.build_configuration}}
+      need_build: false
+      exclude_from_coverage_regex : ${{ parameters.exclude_from_coverage_regex }}
+      export_code_coverage: ${{ parameters.export_code_coverage }}
+      debug_display: ${{ parameters.debug_display }}
+
+

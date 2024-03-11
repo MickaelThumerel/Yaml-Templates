@@ -1,15 +1,25 @@
 # Use dotnet build using a specific solution file *.sln
 
 parameters:
-  - name: solution-file-path
+  - name: solution_file_path
     displayName: SLN file path
     type: string
 
-  - name: build-configuration
+  - name: build_configuration
     displayName: Build configuration
     type: string
     default: Release
 
+  - name: debug_display
+    displayName: Define debug information are requested
+    type: boolean
+    default: false
+
 steps:
-  - script: dotnet build "$parameters['SolutionFilePath']" -c $(buildConfiguration)
+  - ${{ each parameter in parameters }}:
+    - script: echo "##[debug]Parameter ${{ parameter.Key }} = ${{ parameter.Value }}"
+      displayName: "-- Build ${{ parameter.Key }} = ${{ parameter.Value }}"
+      condition: ${{ eq(parameters.debug_display, true) }}
+
+  - script: dotnet build "${{ parameters.solution_file_path }}" -c ${{ parameters.build_configuration }}
     displayName: Build

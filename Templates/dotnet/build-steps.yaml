@@ -1,0 +1,37 @@
+
+parameters:
+  - name: solution_file_name
+    displayName: Relative to solution folder, the SLN file name
+    type: string
+
+  - name: solution_folder_path
+    displayName: SLN folder path
+    type: string
+    default: ./
+
+  - name: build_configuration
+    displayName: Build configuration
+    type: string
+    default: Release
+
+  - name: debug_display
+    displayName: Define debug information are requested
+    type: boolean
+    default: false
+
+steps:
+  - ${{ each parameter in parameters }}:
+    - script: echo "##[debug]Parameter ${{ parameter.Key }} = ${{ parameter.Value }}"
+      displayName: "-- Build-Steps ${{ parameter.Key }} = ${{ parameter.Value }}"
+      condition: ${{ eq(parameters.debug_display, true) }}
+
+  - template: step-restore-dependencies.yaml
+    parameters:
+      solution_folder_path : ${{ parameters.solution_folder_path }}
+      debug_display: ${{ parameters.debug_display }}
+
+  - template: step-build.yaml
+    parameters:
+      solution_file_path : ${{ parameters.solution_folder_path }}${{ parameters.solution_file_name }}
+      build_configuration: ${{ parameters.build_configuration }}
+      debug_display: ${{ parameters.debug_display }}

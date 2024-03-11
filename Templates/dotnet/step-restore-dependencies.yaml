@@ -1,11 +1,22 @@
 # Use dotnet restore on specific folder
 
 parameters:
-  - name: solution-folder-path
+  - name: solution_folder_path
     displayName: SLN folder path
     type: string
     default: ./
 
-- script: dotnet restore 
-  displayName: Restore dependencies
-  workingDirectory: $(parameters['solution-folder-path'])
+  - name: debug_display
+    displayName: Define debug information are requested
+    type: boolean
+    default: false
+
+steps:
+  - ${{ each parameter in parameters }}:
+    - script: echo "##[debug]Parameter ${{ parameter.Key }} = ${{ parameter.Value }}"
+      displayName: "-- Restore ${{ parameter.Key }} = ${{ parameter.Value }}"
+      condition: ${{ eq(parameters.debug_display, true) }}
+
+  - script: dotnet restore 
+    displayName: Restore dependencies
+    workingDirectory: ${{ parameters.solution_folder_path }}

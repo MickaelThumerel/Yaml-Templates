@@ -9,6 +9,15 @@
 #    - (bool) TagAsPrerelease : If true add the suffix "-prerelease"
 #    - (bool) IncludeBuild : If true add the build number (id)
 
+parameters:
+  - name: include_build_number
+    displayName: If true the Build Id will be added
+    type: boolean
+
+  - name: pre_release
+    displayName: Define if the number version must have the tag pre-release
+    type: boolean
+
 variables:
 
   - name: PkgVersionMajor
@@ -21,16 +30,16 @@ variables:
     value: $(PackageVersionPatch)
 
   - name: PkgVersionBuild
-    ${{ if variables['IncludeBuildNumber'] }}:
-      value: ""
-    ${{ else }}:
+    ${{ if parameters.include_build_number }}:
       value: ".$(Build.BuildId)"
+    ${{ else }}:
+      value: ""
 
   - name: PkgVersionPrerelease
-    ${{ if variables['TagAsPrerelease'] }}:
-      value: ""
-    ${{ else }}:
+    ${{ if parameters.pre_release }}:
       value: "-prerelease"
+    ${{ else }}:
+      value: ""
 
   - name: FinalPkgVersionNumber
     value: ${{ variables.PkgVersionMajor }}.${{ variables.PkgVersionMinor }}.${{ variables.PkgVersionPatch }}${{ variables.PkgVersionBuild }}
