@@ -4,7 +4,7 @@ parameters:
   - name: SolutionFilePath
     displayName: SLN file path
     type: string
-
+    
 steps:
 - script: dotnet build "$parameters['SolutionFilePath']" -c $(buildConfiguration)
   displayName: Build

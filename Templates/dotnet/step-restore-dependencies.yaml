@@ -4,6 +4,7 @@ parameters:
   - name: SolutionFolderPath
     displayName: SLN folder path
     type: string
+    default: ./
 
 - script: dotnet restore 
   displayName: Restore dependencies

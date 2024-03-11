@@ -7,6 +7,7 @@ parameters:
   - name: SolutionFolderPath
     displayName: SLN folder path
     type: string
+    default: ./
 
 jobs:
   - job: Build
